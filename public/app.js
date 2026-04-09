@@ -78,7 +78,15 @@ function createAvatarElement(participant) {
 
     const nameBadge = document.createElement('div');
     nameBadge.className = 'avatar-name';
-    nameBadge.textContent = participant.displayName || participant.username;
+    
+    const onlineDot = document.createElement('span');
+    onlineDot.className = 'online-dot';
+    
+    const nameText = document.createElement('span');
+    nameText.textContent = participant.displayName || participant.username;
+    
+    nameBadge.appendChild(onlineDot);
+    nameBadge.appendChild(nameText);
 
     container.appendChild(img);
     container.appendChild(nameBadge);
