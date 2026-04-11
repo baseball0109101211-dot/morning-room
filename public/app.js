@@ -1,34 +1,41 @@
 const AVATAR_SIZE = 80;
 
-// 座席の座標データ (16:9比率画像内のパーセンテージ。xが横、yが縦)
+// 座席の座標データ (配置図の番号順 1-34、パーセンテージ指定)
 const CHAIR_COORDS = [
-    // 左下手前の長テーブル (6脚)
-    { x: 13, y: 79 }, { x: 19, y: 74 }, { x: 26, y: 68 }, // 左列 (手前から奥へ)
-    { x: 28, y: 84 }, { x: 34, y: 79 }, { x: 41, y: 73 }, // 右列 (手前から奥へ)
-
-    // 左中央のソファとアームチェア (2脚分)
-    { x: 38, y: 42 }, { x: 45, y: 38 },
-
-    // 中央手前の四角いテーブル (3脚)
-    { x: 57, y: 75 }, { x: 54, y: 88 }, { x: 67, y: 83 },
-
-    // 中央エリアの白い長テーブル (4脚)
-    { x: 48, y: 57 }, { x: 54, y: 62 }, { x: 59, y: 53 }, { x: 66, y: 59 },
-
-    // 中央奥（ソファの右側）の丸テーブル (2脚)
-    { x: 55, y: 38 }, { x: 61, y: 40 },
-
-    // 少し右奥にある丸テーブル (2脚)
-    { x: 68, y: 49 }, { x: 73, y: 48 },
-
-    // 右奥のパソコン用長テーブル (4脚)
-    { x: 79, y: 36 }, { x: 86, y: 41 }, { x: 89, y: 31 }, { x: 94, y: 36 },
-
-    // カウンター手前の丸テーブル (2脚)
-    { x: 70, y: 24 }, { x: 74, y: 28 },
-
-    // 右手前（丸テーブル） (3脚)
-    { x: 78, y: 71 }, { x: 84, y: 79 }, { x: 92, y: 77 }
+    { x: 38, y: 46 },  // 1: ソファ左
+    { x: 43, y: 40 },  // 2: ソファ右上
+    { x: 39, y: 53 },  // 3: ソファ下
+    { x: 59, y: 35 },  // 4: 中央奥 丸テーブル
+    { x: 55, y: 42 },  // 5: 中央 丸テーブル
+    { x: 52, y: 52 },  // 6: 白テーブル左上
+    { x: 59, y: 46 },  // 7: 白テーブル右上
+    { x: 63, y: 55 },  // 8: 白テーブル右下
+    { x: 49, y: 60 },  // 9: 白テーブル左下
+    { x: 56, y: 61 },  // 10: 白テーブル下
+    { x: 51, y: 33 },  // 11: 中央奥 上
+    { x: 69, y: 42 },  // 12: 右中央 丸テーブル上
+    { x: 73, y: 52 },  // 13: 右中央 丸テーブル下
+    { x: 68, y: 63 },  // 14: 右中央 下テーブル左
+    { x: 74, y: 61 },  // 15: 右中央 下テーブル右
+    { x: 72, y: 73 },  // 16: 右手前 テーブル左
+    { x: 81, y: 70 },  // 17: 右手前 テーブル右
+    { x: 84, y: 61 },  // 18: 右PCデスク手前
+    { x: 94, y: 56 },  // 19: 右端PCデスク
+    { x: 89, y: 45 },  // 20: 右PCデスク中央
+    { x: 79, y: 34 },  // 21: 右PCデスク奥左
+    { x: 88, y: 29 },  // 22: 右PCデスク奥右上
+    { x: 92, y: 35 },  // 23: 右PCデスク奥右下
+    { x: 64, y: 74 },  // 24: 中央手前テーブル
+    { x: 36, y: 80 },  // 25: 左テーブル右手前
+    { x: 26, y: 83 },  // 26: 左テーブル左手前
+    { x: 32, y: 67 },  // 27: 左テーブル右奥
+    { x: 20, y: 79 },  // 28: 左テーブル左下
+    { x: 25, y: 72 },  // 29: 左テーブル中央
+    { x: 21, y: 62 },  // 30: 左テーブル左上
+    { x: 17, y: 66 },  // 31: 左テーブル窓側上
+    { x: 8, y: 70 },   // 32: 左端 窓際
+    { x: 88, y: 51 },  // 33: 右PCデスク中段
+    { x: 97, y: 71 },  // 34: 右端下
 ];
 
 // 座席の割当を管理するシステム
@@ -104,23 +111,32 @@ function updateUI(participants) {
             // 空席を取得
             const seatIndex = getRandomAvailableSeat();
             
+            let yPercent;
+
             if (seatIndex !== null) {
                 // 座席がある場合は、指定された固定座標(%)に配置
                 xPos = CHAIR_COORDS[seatIndex].x + "%";
                 yPos = CHAIR_COORDS[seatIndex].y + "%";
+                yPercent = CHAIR_COORDS[seatIndex].y;
                 assignedSeats.set(p.id, seatIndex);
             } else {
-                // 27人目以降（満席の場合）は、立たせてランダムに端の方に配置
+                // 35人目以降（満席の場合）は、立たせてランダムに端の方に配置
                 const paddingX = layerRect.width * 0.05;
                 const paddingY = layerRect.height * 0.8; // 下の方に立たせる
                 const randomX = paddingX + Math.random() * (layerRect.width - paddingX * 2);
                 const randomY = paddingY + Math.random() * (layerRect.height - paddingY);
                 xPos = `${randomX}px`;
                 yPos = `${randomY}px`;
+                yPercent = 85;
             }
-            
+
             el.style.left = xPos;
             el.style.top = yPos;
+
+            // 遠近感: y座標に応じてサイズを調整 (奥=小さく、手前=大きく)
+            const depthScale = 0.4 + (yPercent / 100) * 0.8;
+            el.style.setProperty('--depth-scale', depthScale);
+            el.style.zIndex = Math.round(yPercent);
             
             layer.appendChild(el);
             renderedParticipants.set(p.id, el);

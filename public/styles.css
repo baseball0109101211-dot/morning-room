@@ -58,10 +58,10 @@ body {
 
 .info-panel {
     position: absolute;
-    top: 20px;
-    left: 20px;
-    padding: 24px 32px;
-    border-radius: 16px;
+    top: clamp(8px, 2vw, 20px);
+    left: clamp(8px, 2vw, 20px);
+    padding: clamp(10px, 2vw, 24px) clamp(14px, 2.5vw, 32px);
+    border-radius: clamp(8px, 1.5vw, 16px);
     z-index: 10;
 }
 
@@ -74,8 +74,8 @@ body {
 }
 
 h1 {
-    margin: 0 0 8px 0;
-    font-size: 1.8rem;
+    margin: 0 0 clamp(2px, 0.5vw, 8px) 0;
+    font-size: clamp(0.9rem, 2.5vw, 1.8rem);
     font-weight: 700;
     letter-spacing: 0.5px;
     color: var(--accent-blue);
@@ -83,7 +83,7 @@ h1 {
 
 p {
     margin: 0;
-    font-size: 1.2rem;
+    font-size: clamp(0.65rem, 1.5vw, 1.2rem);
     opacity: 0.9;
     font-weight: 500;
     color: #4a6583;
@@ -91,6 +91,7 @@ p {
 
 /* アバターのスタイル */
 .avatar-container {
+    --depth-scale: 1;
     position: absolute;
     display: flex;
     flex-direction: column;
@@ -101,35 +102,35 @@ p {
 }
 
 .avatar-img {
-    width: 64px;
-    height: 64px;
+    width: calc(5vw * var(--depth-scale));
+    height: calc(5vw * var(--depth-scale));
     border-radius: 50%;
-    border: 3px solid #fff;
+    border: calc(0.25vw * var(--depth-scale)) solid #fff;
     box-shadow: 0 8px 20px rgba(0,0,0,0.4);
     object-fit: cover;
     background-color: #444;
 }
 
 .avatar-name {
-    margin-top: 10px;
+    margin-top: calc(0.4vw * var(--depth-scale));
     background: #ffffff;
     color: #2b4566;
-    padding: 6px 14px;
+    padding: calc(0.3vw * var(--depth-scale)) calc(0.7vw * var(--depth-scale));
     border-radius: 20px;
-    font-size: 0.9rem;
+    font-size: calc(0.7vw * var(--depth-scale));
     font-weight: 600;
     white-space: nowrap;
     border: 1px solid #d0e1f0;
     box-shadow: 0 4px 12px rgba(79, 165, 227, 0.15);
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: calc(0.3vw * var(--depth-scale));
 }
 
 /* オンラインマークのスタイル */
 .online-dot {
-    width: 8px;
-    height: 8px;
+    width: calc(0.5vw * var(--depth-scale));
+    height: calc(0.5vw * var(--depth-scale));
     background-color: #3ba55d;
     border-radius: 50%;
     display: inline-block;
@@ -148,14 +149,14 @@ p {
 @keyframes popIn {
     0% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(0.3);
+        transform: translate(-50%, -90%) scale(0.3);
     }
     60% {
         opacity: 1;
-        transform: translate(-50%, -50%) scale(1.1);
+        transform: translate(-50%, -90%) scale(1.1);
     }
     100% {
         opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
+        transform: translate(-50%, -90%) scale(1);
     }
 }
