@@ -160,3 +160,61 @@ p {
         transform: translate(-50%, -90%) scale(1);
     }
 }
+
+/* スマホ縦持ち: 高さに合わせて表示、横スクロール可能 */
+@media (orientation: portrait) and (max-width: 768px) {
+    html, body {
+        height: 100vh;
+        overflow-x: scroll;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    body {
+        display: block;
+        min-height: 100vh;
+    }
+
+    .container {
+        width: calc(100vh * 16 / 9);
+        height: 100vh;
+        max-width: none;
+        max-height: none;
+        border-radius: 0;
+        box-shadow: none;
+        margin: 0;
+        aspect-ratio: auto;
+    }
+
+    .info-panel {
+        top: clamp(6px, 1.5vh, 16px);
+        left: clamp(6px, 1.5vh, 16px);
+        padding: clamp(6px, 1.2vh, 16px) clamp(10px, 2vh, 24px);
+    }
+
+    h1 {
+        font-size: clamp(0.9rem, 2.5vh, 1.6rem);
+    }
+
+    p {
+        font-size: clamp(0.65rem, 1.5vh, 1rem);
+    }
+
+    .avatar-img {
+        width: calc(8.5vh * var(--depth-scale));
+        height: calc(8.5vh * var(--depth-scale));
+        border: calc(0.4vh * var(--depth-scale)) solid #fff;
+    }
+
+    .avatar-name {
+        margin-top: calc(0.6vh * var(--depth-scale));
+        padding: calc(0.5vh * var(--depth-scale)) calc(1.2vh * var(--depth-scale));
+        font-size: calc(1.2vh * var(--depth-scale));
+        gap: calc(0.5vh * var(--depth-scale));
+    }
+
+    .online-dot {
+        width: calc(0.8vh * var(--depth-scale));
+        height: calc(0.8vh * var(--depth-scale));
+    }
+}
