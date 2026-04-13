@@ -1,28 +1,31 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>朝活ダッシュボード</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <div class="container">
         <!-- 背景になるマップエリア -->
         <div class="map-area" id="map-area">
             <!-- 任意の背景画像（中村さんの好きな画像に差し替えられます） -->
-            <img src="bg-reworks-final-v4.jpg" alt="Background Map" class="background-img" id="bg-image">
-            
+            <img src="bg-reworks.png" alt="Background Map" class="background-img" id="bg-image">
+
             <!-- アイコンが展開されるレイヤー -->
             <div id="avatars-layer" class="avatars-layer"></div>
         </div>
 
         <div class="glass-panel info-panel">
-            <h1>朝活部屋 参加状況</h1>
+            <h1>Re:worksカフェ 参加状況</h1>
             <p>現在の参加人数: <span id="participant-count">0</span>人</p>
         </div>
     </div>
-    
+
     <script src="app.js"></script>
 </body>
+
 </html>
