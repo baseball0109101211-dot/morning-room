@@ -27,26 +27,46 @@ const client = new Client({
 // Cache for current participants
 let currentParticipants = [];
 
-// Helper function to update participants list
-const updateParticipants = async () => {
+// Monitored channels configuration
+const monitoredChannels = [
+    { guildId: process.env.DISCORD_GUILD_ID, channelId: process.env.DISCORD_VOICE_CHANNEL_ID },
+    { guildId: process.env.DISCORD_GUILD_ID_2, channelId: process.env.DISCORD_VOICE_CHANNEL_ID_2 },
+].filter(ch => ch.guildId && ch.channelId);
+
+// Helper function to fetch members from a single channel
+const fetchChannelMembers = async ({ guildId, channelId }) => {
     try {
-        if (!process.env.DISCORD_GUILD_ID || !process.env.DISCORD_VOICE_CHANNEL_ID) return;
-        
-        const guild = await client.guilds.fetch(process.env.DISCORD_GUILD_ID);
-        if (!guild) return;
+        const guild = await client.guilds.fetch(guildId);
+        if (!guild) return [];
 
-        const channel = await guild.channels.fetch(process.env.DISCORD_VOICE_CHANNEL_ID);
-        if (!channel || channel.type !== 2) return; // 2 is GuildVoice
+        const channel = await guild.channels.fetch(channelId);
+        if (!channel || channel.type !== 2) return []; // 2 is GuildVoice
 
-        const members = channel.members.map(member => ({
+        return channel.members.map(member => ({
             id: member.id,
             username: member.user.username,
             displayName: member.displayName,
             avatarURL: member.user.displayAvatarURL({ forceStatic: false, size: 128, extension: 'png' }) || null
         }));
+    } catch (error) {
+        console.error(`Error fetching from guild ${guildId}:`, error);
+        return [];
+    }
+};
 
-        currentParticipants = members;
-        console.log(`[Update] Participants updated: ${members.length} users.`);
+// Helper function to update participants list from all channels
+const updateParticipants = async () => {
+    try {
+        const results = await Promise.all(monitoredChannels.map(fetchChannelMembers));
+        const allMembers = results.flat();
+        // Deduplicate by user ID (in case same user is in both)
+        const seen = new Set();
+        currentParticipants = allMembers.filter(m => {
+            if (seen.has(m.id)) return false;
+            seen.add(m.id);
+            return true;
+        });
+        console.log(`[Update] Participants updated: ${currentParticipants.length} users from ${monitoredChannels.length} channels.`);
     } catch (error) {
         console.error('Error fetching participants:', error);
     }
@@ -59,10 +79,9 @@ client.once('ready', () => {
 });
 
 // Listen to voice state updates
+const monitoredChannelIds = new Set(monitoredChannels.map(ch => ch.channelId));
 client.on('voiceStateUpdate', (oldState, newState) => {
-    // If the affected channel is our target channel
-    if (oldState.channelId === process.env.DISCORD_VOICE_CHANNEL_ID || 
-        newState.channelId === process.env.DISCORD_VOICE_CHANNEL_ID) {
+    if (monitoredChannelIds.has(oldState.channelId) || monitoredChannelIds.has(newState.channelId)) {
         updateParticipants();
     }
 });
