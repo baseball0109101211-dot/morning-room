@@ -77,6 +77,9 @@ function updateUI(participants) {
     const layer = document.getElementById('avatars-layer');
     document.getElementById('participant-count').textContent = participants.length;
 
+    // 参加者数に応じてポーリング間隔を切り替え
+    updatePollInterval(participants.length);
+
     const layerRect = layer.getBoundingClientRect();
     
     // 現在のIDセットを作成（削除判定用）
@@ -175,8 +178,73 @@ function createAvatarElement(participant) {
     return container;
 }
 
-// 初回データ取得
-fetchParticipants();
+// ポーリング制御
+const POLL_INTERVAL_ACTIVE = 5000;   // 誰かいる時: 5秒
+const POLL_INTERVAL_IDLE = 15000;    // 誰もいない時: 15秒
+const EMPTY_TIMEOUT = 15 * 60 * 1000; // 15分間誰もいなければ停止
+let pollTimer = null;
+let currentParticipantCount = 0;
+let isTabVisible = true;
+let emptyStartTime = null;           // 0人になった時刻
+let isSleeping = false;              // 15分経過で停止中かどうか
 
-// 5秒ごとに更新（参加・退出が連動する）
-setInterval(fetchParticipants, 5000);
+function getPollInterval() {
+    return currentParticipantCount > 0 ? POLL_INTERVAL_ACTIVE : POLL_INTERVAL_IDLE;
+}
+
+function startPolling() {
+    stopPolling();
+    isSleeping = false;
+    fetchParticipants();
+    pollTimer = setInterval(fetchParticipants, getPollInterval());
+}
+
+function stopPolling() {
+    if (pollTimer) {
+        clearInterval(pollTimer);
+        pollTimer = null;
+    }
+}
+
+// 参加者数が変わった時にポーリング間隔を切り替え
+function updatePollInterval(newCount) {
+    const prevCount = currentParticipantCount;
+    currentParticipantCount = newCount;
+
+    if (newCount > 0) {
+        // 誰かいる → タイマーリセット＆スリープ解除
+        emptyStartTime = null;
+        if (isSleeping) {
+            startPolling();
+        } else if ((prevCount === 0) !== (newCount === 0)) {
+            if (isTabVisible) startPolling();
+        }
+    } else {
+        // 0人になった → タイマー開始
+        if (emptyStartTime === null) {
+            emptyStartTime = Date.now();
+        }
+        // 15分経過チェック
+        if (Date.now() - emptyStartTime >= EMPTY_TIMEOUT) {
+            stopPolling();
+            isSleeping = true;
+        } else if ((prevCount === 0) !== (newCount === 0)) {
+            if (isTabVisible) startPolling();
+        }
+    }
+}
+
+// タブの表示/非表示でポーリングを制御
+document.addEventListener('visibilitychange', () => {
+    isTabVisible = !document.hidden;
+    if (isTabVisible) {
+        // タブに戻ったらスリープ解除して再開
+        emptyStartTime = null;
+        startPolling();
+    } else {
+        stopPolling();
+    }
+});
+
+// 初回データ取得＆ポーリング開始
+startPolling();
