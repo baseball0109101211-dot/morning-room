@@ -31,6 +31,7 @@ let currentParticipants = [];
 const monitoredChannels = [
     { guildId: process.env.DISCORD_GUILD_ID, channelId: process.env.DISCORD_VOICE_CHANNEL_ID },
     { guildId: process.env.DISCORD_GUILD_ID_2, channelId: process.env.DISCORD_VOICE_CHANNEL_ID_2 },
+    { guildId: process.env.DISCORD_GUILD_ID_3, channelId: process.env.DISCORD_VOICE_CHANNEL_ID_3 },
 ].filter(ch => ch.guildId && ch.channelId);
 
 // Helper function to fetch members from a single channel
