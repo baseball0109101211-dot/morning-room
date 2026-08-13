@@ -111,6 +111,14 @@ p {
     background-color: #444;
 }
 
+/* 4つ目のサーバーの人だけ: 水色枠で特別扱い */
+.avatar-img-special {
+    border-color: #00c3ff;
+    box-shadow: 0 0 0 calc(0.18vw * var(--depth-scale)) #00c3ff,
+                0 0 calc(1.2vw * var(--depth-scale)) rgba(0, 195, 255, 0.75),
+                0 8px 20px rgba(0,0,0,0.4);
+}
+
 .avatar-name {
     margin-top: calc(0.4vw * var(--depth-scale));
     background: #ffffff;

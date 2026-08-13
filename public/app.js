@@ -153,7 +153,11 @@ function createAvatarElement(participant) {
 
     const img = document.createElement('img');
     img.className = 'avatar-img';
-    
+    // 4つ目のサーバーの人は特別扱い: 水色枠クラスを付与
+    if (participant.isSpecial) {
+        img.classList.add('avatar-img-special');
+    }
+
     // Discordのアバターが設定されていない場合のデフォルト画像処理
     const defaultAvatarId = participant.id ? (BigInt(participant.id) >> 22n) % 6n : Math.floor(Math.random() * 5);
     img.src = participant.avatarURL || `https://cdn.discordapp.com/embed/avatars/${defaultAvatarId}.png`;

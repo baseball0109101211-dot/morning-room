@@ -32,10 +32,12 @@ const monitoredChannels = [
     { guildId: process.env.DISCORD_GUILD_ID, channelId: process.env.DISCORD_VOICE_CHANNEL_ID },
     { guildId: process.env.DISCORD_GUILD_ID_2, channelId: process.env.DISCORD_VOICE_CHANNEL_ID_2 },
     { guildId: process.env.DISCORD_GUILD_ID_3, channelId: process.env.DISCORD_VOICE_CHANNEL_ID_3 },
+    // 4つ目のサーバー: 特別扱い（アイコンを水色枠にする）
+    { guildId: process.env.DISCORD_GUILD_ID_4, channelId: process.env.DISCORD_VOICE_CHANNEL_ID_4, special: true },
 ].filter(ch => ch.guildId && ch.channelId);
 
 // Helper function to fetch members from a single channel
-const fetchChannelMembers = async ({ guildId, channelId }) => {
+const fetchChannelMembers = async ({ guildId, channelId, special }) => {
     try {
         const guild = await client.guilds.fetch(guildId);
         if (!guild) return [];
@@ -47,7 +49,8 @@ const fetchChannelMembers = async ({ guildId, channelId }) => {
             id: member.id,
             username: member.user.username,
             displayName: member.displayName,
-            avatarURL: member.user.displayAvatarURL({ forceStatic: false, size: 128, extension: 'png' }) || null
+            avatarURL: member.user.displayAvatarURL({ forceStatic: false, size: 128, extension: 'png' }) || null,
+            isSpecial: special || false // 4つ目のサーバーの人なら true
         }));
     } catch (error) {
         console.error(`Error fetching from guild ${guildId}:`, error);
@@ -60,13 +63,17 @@ const updateParticipants = async () => {
     try {
         const results = await Promise.all(monitoredChannels.map(fetchChannelMembers));
         const allMembers = results.flat();
-        // Deduplicate by user ID (in case same user is in both)
-        const seen = new Set();
-        currentParticipants = allMembers.filter(m => {
-            if (seen.has(m.id)) return false;
-            seen.add(m.id);
-            return true;
-        });
+        // Deduplicate by user ID. 同じ人が複数サーバーにいる場合は特別扱い(isSpecial)を優先
+        const byId = new Map();
+        for (const m of allMembers) {
+            const existing = byId.get(m.id);
+            if (!existing) {
+                byId.set(m.id, m);
+            } else if (m.isSpecial && !existing.isSpecial) {
+                byId.set(m.id, m); // 4つ目サーバー側の情報で上書き
+            }
+        }
+        currentParticipants = Array.from(byId.values());
         console.log(`[Update] Participants updated: ${currentParticipants.length} users from ${monitoredChannels.length} channels.`);
     } catch (error) {
         console.error('Error fetching participants:', error);
